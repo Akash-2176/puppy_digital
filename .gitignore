@@ -1,0 +1,27 @@
+# --- Node.js / Frontend ---
+frontend/node_modules/
+frontend/dist/
+frontend/.next/
+frontend/.nuxt/
+frontend/build/
+
+# --- Python / Backend ---
+backend/__pycache__/
+backend/venv/
+backend/.env
+backend/.mypy_cache/
+backend/.pytest_cache/
+
+# --- Logs ---
+*.log
+
+# --- OS / Editor crap ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# --- General ---
+*.env
+*.local

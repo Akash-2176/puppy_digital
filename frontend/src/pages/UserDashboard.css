@@ -1,0 +1,99 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  background: black;
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.dashboard {
+  position: relative;
+  z-index: 1;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  color: #fff;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+}
+
+.main {
+  max-width: 400px;
+  margin: 100px auto 0;
+  text-align: center;
+}
+
+.coupon-input, .redeem-btn {
+  width: 90%;
+  margin: 10px auto;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+}
+
+.redeem-btn {
+  background: #6f42c1;
+  color: #fff;
+}
+
+.galactic-meter {
+  margin: 40px auto;
+  width: 180px;
+  height: 180px;
+  position: relative;
+}
+
+.vortex {
+  border: 4px solid #fff;
+  border-top-color: #6f42c1;
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 20px #6f42c1;
+}
+
+.neon-ring {
+  animation: glow 1.5s infinite alternate;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px #6f42c1, 0 0 20px #6f42c1;
+  }
+  to {
+    box-shadow: 0 0 20px #d63384, 0 0 40px #d63384;
+  }
+}
+
+.congrats-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup {
+  padding: 30px;
+  text-align: center;
+}

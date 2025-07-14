@@ -1,0 +1,20 @@
+service: coupon-backend
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-south-1
+  environment:
+    MONGO_URI: ${env:MONGO_URI}
+    JWT_SECRET: ${env:JWT_SECRET}
+
+plugins:
+  - serverless-offline
+
+functions:
+  app:
+    handler: src/index.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: any
