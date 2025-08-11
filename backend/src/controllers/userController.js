@@ -15,7 +15,7 @@ exports.getWallet = async (req, res) => {
   }
 };
 
-// This code defines a controller function to get the user's wallet information, including balance and transaction history.
+// This code defines a controller function to get the user's wallet information,including balance and transaction history.
 
 exports.redeemCoupon = async (req, res) => {
   try {
