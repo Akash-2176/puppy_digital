@@ -1,51 +1,79 @@
-const Wallet = require('../models/Wallet');
-const Coupon = require('../models/Coupon');
+const User = require("../models/User");
+const Wallet = require("../models/Wallet");
+const Auth = require("../models/Auth");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+
+exports.register = async (req, res) => {
+  try {
+    console.log('Request body:', req.body);
+    const { name, phone, password, role = 'user' } = req.body || {}; // Default to 'user', allow 'admin'
+
+    if (!name || !phone || !password) {
+      throw new Error('Missing required fields: name, phone, or password');
+    }
+
+    console.log('Parsed values:', { name, phone, password, role });
+    const existingAuth = await Auth.findOne({ phone });
+    if (existingAuth) return res.status(400).json({ message: "User with this phone already exists" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('Hashed password and auth data:', { phone, hashedPassword, role });
+    const auth = await Auth.create({ phone, passwordHash: hashedPassword, role });
+
+    console.log('Created auth:', auth);
+    const user = await User.create({ authId: auth._id, phone, username: name });
+
+    console.log('Created user:', user);
+    const wallet = await Wallet.create({ userId: user._id, walletBalance: 0, walletHistory: [] });
+    user.walletId = wallet._id;
+    await user.save();
+
+    console.log('Created wallet and updated user:', { user, wallet });
+    console.log('Sending response...');
+    res.status(201).json({ message: "User registered successfully", userId: user._id });
+  } catch (err) {
+    console.error('Registration error:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    const { phone, password } = req.body;
+
+    const auth = await Auth.findOne({ phone });
+    if (!auth) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(password, auth.passwordHash);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+    const token = jwt.sign({ id: auth._id, role: auth.role }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.json({ token });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 exports.getWallet = async (req, res) => {
   try {
     const wallet = await Wallet.findOne({ userId: req.user.userId });
-    if (!wallet) {
-      return res.status(404).json({ error: 'Wallet not found' });
-    }
-
-    res.status(200).json({ wallet });
+    res.json(wallet);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: err.message });
   }
 };
 
-// This code defines a controller function to get the user's wallet information,including balance and transaction history.
-
-exports.redeemCoupon = async (req, res) => {
+exports.getProfile = async (req, res) => {
   try {
-    const { code } = req.body;
-    const userId = req.user.id; // comes from JWT middleware
+    const user = await User.findById(req.user.userId).populate('walletId');
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const coupon = await Coupon.findOne({ code });
-    if (!coupon) return res.status(404).json({ msg: 'Coupon not found' });
-    if (coupon.isUsed) return res.status(400).json({ msg: 'Coupon already used' });
-
-    // mark coupon
-    coupon.isUsed = true;
-    coupon.usedBy = userId;
-    coupon.redeemedAt = new Date();
-    await coupon.save();
-
-    // update wallet
-    const wallet = await Wallet.findOne({ userId });
-    wallet.walletBalance += coupon.value;
-    wallet.walletHistory.push({
-      type: 'coupon',
-      amount: coupon.value,
-      at: new Date()
-    });
-    wallet.lastUpdated = new Date();
-    await wallet.save();
-
-    res.json({ wallet });
+    res.json(user);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ error: err.message });
   }
 };

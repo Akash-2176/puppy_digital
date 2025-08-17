@@ -6,9 +6,9 @@ const AdSchema = new mongoose.Schema({
   title: { type: String },
   description: { type: String },
   isActive: { type: Boolean, default: true },
-  uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
-  createdAt: { type: Date, default: Date.now }
-});
+  uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' }
+}, { timestamps: true });
+
 
 module.exports = mongoose.model('Ad', AdSchema);
 

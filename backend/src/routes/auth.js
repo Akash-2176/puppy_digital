@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { register, login } = require('../controllers/authController');
+const { register, login, getProfile } = require('../controllers/userController');
+const { protect } = require('../middlewares/authMiddleware');
 
-router.post('/register', register);
-router.post('/login', login);
+router.post("/register", register);
+router.post("/login", login);
+router.get("/profile", protect, getProfile);
 
 module.exports = router;
-
-// This code defines the routes for user authentication in an Express application.

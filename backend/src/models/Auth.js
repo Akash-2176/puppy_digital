@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const AuthSchema = new mongoose.Schema({
-  phone: { type: String, required: true, unique: true },
+  phone: { type: String, required: true, unique: true }, // Use phone as the login identifier
   passwordHash: { type: String, required: true },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   createdAt: { type: Date, default: Date.now }

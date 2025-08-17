@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
 const AdminSchema = new mongoose.Schema({
-  adminName: { type: String },
-  email: { type: String }
-  // We removed redemptionList since it's in a separate collection
+  adminName: { type: String, required: true },
+  email: { type: String, unique: true },
+  role: { type: String, enum: ['superadmin', 'moderator'], default: 'moderator' }
 }, { timestamps: true });
+
 
 module.exports = mongoose.model('Admin', AdminSchema);
 
