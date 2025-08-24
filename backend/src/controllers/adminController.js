@@ -32,9 +32,9 @@ exports.getAllAds = async (req, res) => {
   }
 };
 
-exports.getPendingRedemptions = async (req, res) => {
+exports.getRedemptions = async (req, res) => {
   try {
-    const redemptions = await RedemptionLog.find({ status: 'pending' })
+    const redemptions = await RedemptionLog.find()
       .populate('userId')
       .populate('offerId');
     res.json(redemptions);
@@ -73,6 +73,19 @@ exports.getUserByPhone = async (req, res) => {
     const user = await User.findOne({ phone }).populate('walletId');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.removeAd = async (req, res) => {
+  try {
+    const { adId } = req.body;
+    const ad = await Ad.findById(adId);
+    if (!ad) return res.status(404).json({ message: 'Ad not found' });
+
+    await Ad.deleteOne({ _id: adId });
+    res.json({ message: 'Ad removed successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

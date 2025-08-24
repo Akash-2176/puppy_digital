@@ -42,7 +42,7 @@ exports.redeemOffer = async (req, res) => {
 
 exports.getAllRedemptions = async (req, res) => {
   try {
-    const redemptions = await RedemptionLog.find().populate("userId offerId");
+    const redemptions = await RedemptionLog.find({ userId: req.user.userId }).populate("userId offerId");
     res.json(redemptions);
   } catch (err) {
     res.status(500).json({ error: err.message });
