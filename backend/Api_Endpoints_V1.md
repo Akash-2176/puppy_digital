@@ -20,7 +20,7 @@
 | GET | `/user/ads/images` | Fetch carousel images |
 | GET | `/user/ads/video` | Fetch random video ad (non-skippable) |
 | GET | `/user/wallet` | Get wallet balance |
-
+ 
 ### 📌 Profile
 | Method | Endpoint | Description |
 |--------|-----------|-------------|

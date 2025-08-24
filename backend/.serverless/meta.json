@@ -1,0 +1,983 @@
+{
+  "/media/akash2176/D/puppy_digital/backend/serverless.yml": {
+    "versionFramework": "4.18.0",
+    "servicePath": "/media/akash2176/D/puppy_digital/backend/serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "coupon-backend",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs18.x",
+        "region": "ap-south-1",
+        "environment": {
+          "MONGO_URI": "mongodb+srv://akash2176:1133557799Qsc.@cluster0.g6nia4x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+          "JWT_SECRET": "<REDACTED>"
+        },
+        "stage": "dev",
+        "versionFunctions": true,
+        "compiledCloudFormationTemplate": {
+          "AWSTemplateFormatVersion": "2010-09-09",
+          "Description": "The AWS CloudFormation template for this Serverless application",
+          "Resources": {
+            "AppLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/coupon-backend-dev-app"
+              }
+            },
+            "IamRoleLambdaExecution": {
+              "Type": "AWS::IAM::Role",
+              "Properties": {
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": [
+                          "lambda.amazonaws.com"
+                        ]
+                      },
+                      "Action": [
+                        "sts:AssumeRole"
+                      ]
+                    }
+                  ]
+                },
+                "Policies": [
+                  {
+                    "PolicyName": {
+                      "Fn::Join": [
+                        "-",
+                        [
+                          "coupon-backend",
+                          "dev",
+                          "lambda"
+                        ]
+                      ]
+                    },
+                    "PolicyDocument": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:CreateLogStream",
+                            "logs:CreateLogGroup",
+                            "logs:TagResource"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/coupon-backend-dev*:*"
+                            }
+                          ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:PutLogEvents"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/coupon-backend-dev*:*:*"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "Path": "/",
+                "RoleName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "coupon-backend",
+                      "dev",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "lambdaRole"
+                    ]
+                  ]
+                }
+              }
+            },
+            "AppLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-03537c9c-1e87",
+                  "S3Key": "serverless/coupon-backend/dev/1755489750783-2025-08-18T04:02:30.783Z/coupon-backend.zip"
+                },
+                "Handler": "src/index.handler",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "coupon-backend-dev-app",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "MONGO_URI": "mongodb+srv://akash2176:1133557799Qsc.@cluster0.g6nia4x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+                    "JWT_SECRET": "<REDACTED>"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "AppLogGroup"
+              ]
+            },
+            "AppLambdaVersiongN2UhwQ0e2Jh3XdqVC2HsjC96dM5y6CTStuLPNUjjk": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "AppLambdaFunction"
+                },
+                "CodeSha256": "QGr/ol9UTmOEz7v+29+irGITGylBie/JriU8jSlxvrQ="
+              }
+            },
+            "ApiGatewayRestApi": {
+              "Type": "AWS::ApiGateway::RestApi",
+              "Properties": {
+                "Name": "dev-coupon-backend",
+                "EndpointConfiguration": {
+                  "Types": [
+                    "EDGE"
+                  ]
+                },
+                "Policy": ""
+              }
+            },
+            "ApiGatewayResourceProxyVar": {
+              "Type": "AWS::ApiGateway::Resource",
+              "Properties": {
+                "ParentId": {
+                  "Fn::GetAtt": [
+                    "ApiGatewayRestApi",
+                    "RootResourceId"
+                  ]
+                },
+                "PathPart": "{proxy+}",
+                "RestApiId": {
+                  "Ref": "ApiGatewayRestApi"
+                }
+              }
+            },
+            "ApiGatewayMethodProxyVarAny": {
+              "Type": "AWS::ApiGateway::Method",
+              "Properties": {
+                "HttpMethod": "ANY",
+                "RequestParameters": {},
+                "ResourceId": {
+                  "Ref": "ApiGatewayResourceProxyVar"
+                },
+                "RestApiId": {
+                  "Ref": "ApiGatewayRestApi"
+                },
+                "ApiKeyRequired": "<REDACTED>",
+                "AuthorizationType": "NONE",
+                "Integration": {
+                  "IntegrationHttpMethod": "POST",
+                  "Type": "AWS_PROXY",
+                  "Uri": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        ":apigateway:",
+                        {
+                          "Ref": "AWS::Region"
+                        },
+                        ":lambda:path/2015-03-31/functions/",
+                        {
+                          "Fn::GetAtt": [
+                            "AppLambdaFunction",
+                            "Arn"
+                          ]
+                        },
+                        "/invocations"
+                      ]
+                    ]
+                  }
+                },
+                "MethodResponses": []
+              },
+              "DependsOn": [
+                "AppLambdaPermissionApiGateway"
+              ]
+            },
+            "ApiGatewayDeployment1755489740654": {
+              "Type": "AWS::ApiGateway::Deployment",
+              "Properties": {
+                "RestApiId": {
+                  "Ref": "ApiGatewayRestApi"
+                },
+                "StageName": "dev"
+              },
+              "DependsOn": [
+                "ApiGatewayMethodProxyVarAny"
+              ]
+            },
+            "AppLambdaPermissionApiGateway": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "AppLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "ApiGatewayRestApi"
+                      },
+                      "/*/*"
+                    ]
+                  ]
+                }
+              }
+            }
+          },
+          "Outputs": {
+            "ServerlessDeploymentBucketName": {
+              "Value": "serverless-framework-deployments-ap-south-1-03537c9c-1e87",
+              "Export": {
+                "Name": "sls-coupon-backend-dev-ServerlessDeploymentBucketName"
+              }
+            },
+            "AppLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "AppLambdaVersiongN2UhwQ0e2Jh3XdqVC2HsjC96dM5y6CTStuLPNUjjk"
+              },
+              "Export": {
+                "Name": "sls-coupon-backend-dev-AppLambdaFunctionQualifiedArn"
+              }
+            },
+            "ServiceEndpoint": {
+              "Description": "URL of the service endpoint",
+              "Value": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "https://",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    ".execute-api.",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ".",
+                    {
+                      "Ref": "AWS::URLSuffix"
+                    },
+                    "/dev"
+                  ]
+                ]
+              },
+              "Export": {
+                "Name": "sls-coupon-backend-dev-ServiceEndpoint"
+              }
+            }
+          }
+        },
+        "vpc": {}
+      },
+      "plugins": [
+        "serverless-offline"
+      ],
+      "functions": {
+        "app": {
+          "handler": "src/index.handler",
+          "events": [
+            {
+              "http": {
+                "path": "{proxy+}",
+                "method": "any",
+                "integration": "AWS_PROXY"
+              }
+            }
+          ],
+          "name": "coupon-backend-dev-app",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "AppLambdaVersiongN2UhwQ0e2Jh3XdqVC2HsjC96dM5y6CTStuLPNUjjk"
+        }
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs18.x",
+      "region": "ap-south-1",
+      "environment": {
+        "MONGO_URI": "mongodb+srv://akash2176:1133557799Qsc.@cluster0.g6nia4x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+        "JWT_SECRET": "<REDACTED>"
+      },
+      "stage": "dev",
+      "versionFunctions": true,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "AppLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/coupon-backend-dev-app"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "coupon-backend",
+                        "dev",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup",
+                          "logs:TagResource"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/coupon-backend-dev*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/coupon-backend-dev*:*:*"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "coupon-backend",
+                    "dev",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "AppLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-03537c9c-1e87",
+                "S3Key": "serverless/coupon-backend/dev/1755489750783-2025-08-18T04:02:30.783Z/coupon-backend.zip"
+              },
+              "Handler": "src/index.handler",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "coupon-backend-dev-app",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "MONGO_URI": "mongodb+srv://akash2176:1133557799Qsc.@cluster0.g6nia4x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+                  "JWT_SECRET": "<REDACTED>"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "AppLogGroup"
+            ]
+          },
+          "AppLambdaVersiongN2UhwQ0e2Jh3XdqVC2HsjC96dM5y6CTStuLPNUjjk": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "AppLambdaFunction"
+              },
+              "CodeSha256": "QGr/ol9UTmOEz7v+29+irGITGylBie/JriU8jSlxvrQ="
+            }
+          },
+          "ApiGatewayRestApi": {
+            "Type": "AWS::ApiGateway::RestApi",
+            "Properties": {
+              "Name": "dev-coupon-backend",
+              "EndpointConfiguration": {
+                "Types": [
+                  "EDGE"
+                ]
+              },
+              "Policy": ""
+            }
+          },
+          "ApiGatewayResourceProxyVar": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "{proxy+}",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodProxyVarAny": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "ANY",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceProxyVar"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": "<REDACTED>",
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "AppLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "AppLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayDeployment1755489740654": {
+            "Type": "AWS::ApiGateway::Deployment",
+            "Properties": {
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "StageName": "dev"
+            },
+            "DependsOn": [
+              "ApiGatewayMethodProxyVarAny"
+            ]
+          },
+          "AppLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "AppLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": "serverless-framework-deployments-ap-south-1-03537c9c-1e87",
+            "Export": {
+              "Name": "sls-coupon-backend-dev-ServerlessDeploymentBucketName"
+            }
+          },
+          "AppLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "AppLambdaVersiongN2UhwQ0e2Jh3XdqVC2HsjC96dM5y6CTStuLPNUjjk"
+            },
+            "Export": {
+              "Name": "sls-coupon-backend-dev-AppLambdaFunctionQualifiedArn"
+            }
+          },
+          "ServiceEndpoint": {
+            "Description": "URL of the service endpoint",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Ref": "ApiGatewayRestApi"
+                  },
+                  ".execute-api.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix"
+                  },
+                  "/dev"
+                ]
+              ]
+            },
+            "Export": {
+              "Name": "sls-coupon-backend-dev-ServiceEndpoint"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "service: coupon-backend\n\nprovider:\n  name: aws\n  runtime: nodejs18.x\n  region: ap-south-1\n  environment:\n    MONGO_URI: ${env:MONGO_URI}\n    JWT_SECRET: ${env:JWT_SECRET}\n\nplugins:\n  - serverless-offline\n\nfunctions:\n  app:\n    handler: src/index.handler\n    events:\n      - http:\n          path: /{proxy+}\n          method: any\n",
+    "command": [
+      "deploy"
+    ],
+    "options": {},
+    "orgId": "0da35b1e-e225-4289-a3db-09b092274a14",
+    "orgName": "akproject",
+    "userId": "xHNY4hhvjWtMf7MFmJ",
+    "userName": "akproject",
+    "serviceProviderAwsAccountId": "603195189676",
+    "serviceProviderAwsCfStackName": "coupon-backend-dev",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:ap-south-1:603195189676:stack/coupon-backend-dev/c04f28d0-7bac-11f0-843c-064bb159a12b",
+    "serviceProviderAwsCfStackCreated": "2025-08-17T20:57:14.632Z",
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": "CREATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "AppLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:603195189676:function:coupon-backend-dev-app:1",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-coupon-backend-dev-AppLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ServiceEndpoint",
+        "OutputValue": "https://5qa8tnejdi.execute-api.ap-south-1.amazonaws.com/dev",
+        "Description": "URL of the service endpoint",
+        "ExportName": "sls-coupon-backend-dev-ServiceEndpoint"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-ap-south-1-03537c9c-1e87",
+        "ExportName": "sls-coupon-backend-dev-ServerlessDeploymentBucketName"
+      }
+    ],
+    "compiledCloudFormationTemplate": {
+      "AWSTemplateFormatVersion": "2010-09-09",
+      "Description": "The AWS CloudFormation template for this Serverless application",
+      "Resources": {
+        "AppLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/coupon-backend-dev-app"
+          }
+        },
+        "IamRoleLambdaExecution": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "lambda.amazonaws.com"
+                    ]
+                  },
+                  "Action": [
+                    "sts:AssumeRole"
+                  ]
+                }
+              ]
+            },
+            "Policies": [
+              {
+                "PolicyName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "coupon-backend",
+                      "dev",
+                      "lambda"
+                    ]
+                  ]
+                },
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:CreateLogStream",
+                        "logs:CreateLogGroup",
+                        "logs:TagResource"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/coupon-backend-dev*:*"
+                        }
+                      ]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/coupon-backend-dev*:*:*"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "Path": "/",
+            "RoleName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "coupon-backend",
+                  "dev",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "lambdaRole"
+                ]
+              ]
+            }
+          }
+        },
+        "AppLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-03537c9c-1e87",
+              "S3Key": "serverless/coupon-backend/dev/1755489750783-2025-08-18T04:02:30.783Z/coupon-backend.zip"
+            },
+            "Handler": "src/index.handler",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "coupon-backend-dev-app",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Environment": {
+              "Variables": {
+                "MONGO_URI": "mongodb+srv://akash2176:1133557799Qsc.@cluster0.g6nia4x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+                "JWT_SECRET": "<REDACTED>"
+              }
+            },
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "AppLogGroup"
+          ]
+        },
+        "AppLambdaVersiongN2UhwQ0e2Jh3XdqVC2HsjC96dM5y6CTStuLPNUjjk": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "AppLambdaFunction"
+            },
+            "CodeSha256": "QGr/ol9UTmOEz7v+29+irGITGylBie/JriU8jSlxvrQ="
+          }
+        },
+        "ApiGatewayRestApi": {
+          "Type": "AWS::ApiGateway::RestApi",
+          "Properties": {
+            "Name": "dev-coupon-backend",
+            "EndpointConfiguration": {
+              "Types": [
+                "EDGE"
+              ]
+            },
+            "Policy": ""
+          }
+        },
+        "ApiGatewayResourceProxyVar": {
+          "Type": "AWS::ApiGateway::Resource",
+          "Properties": {
+            "ParentId": {
+              "Fn::GetAtt": [
+                "ApiGatewayRestApi",
+                "RootResourceId"
+              ]
+            },
+            "PathPart": "{proxy+}",
+            "RestApiId": {
+              "Ref": "ApiGatewayRestApi"
+            }
+          }
+        },
+        "ApiGatewayMethodProxyVarAny": {
+          "Type": "AWS::ApiGateway::Method",
+          "Properties": {
+            "HttpMethod": "ANY",
+            "RequestParameters": {},
+            "ResourceId": {
+              "Ref": "ApiGatewayResourceProxyVar"
+            },
+            "RestApiId": {
+              "Ref": "ApiGatewayRestApi"
+            },
+            "ApiKeyRequired": "<REDACTED>",
+            "AuthorizationType": "NONE",
+            "Integration": {
+              "IntegrationHttpMethod": "POST",
+              "Type": "AWS_PROXY",
+              "Uri": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":apigateway:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":lambda:path/2015-03-31/functions/",
+                    {
+                      "Fn::GetAtt": [
+                        "AppLambdaFunction",
+                        "Arn"
+                      ]
+                    },
+                    "/invocations"
+                  ]
+                ]
+              }
+            },
+            "MethodResponses": []
+          },
+          "DependsOn": [
+            "AppLambdaPermissionApiGateway"
+          ]
+        },
+        "ApiGatewayDeployment1755489740654": {
+          "Type": "AWS::ApiGateway::Deployment",
+          "Properties": {
+            "RestApiId": {
+              "Ref": "ApiGatewayRestApi"
+            },
+            "StageName": "dev"
+          },
+          "DependsOn": [
+            "ApiGatewayMethodProxyVarAny"
+          ]
+        },
+        "AppLambdaPermissionApiGateway": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "AppLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "ApiGatewayRestApi"
+                  },
+                  "/*/*"
+                ]
+              ]
+            }
+          }
+        }
+      },
+      "Outputs": {
+        "ServerlessDeploymentBucketName": {
+          "Value": "serverless-framework-deployments-ap-south-1-03537c9c-1e87",
+          "Export": {
+            "Name": "sls-coupon-backend-dev-ServerlessDeploymentBucketName"
+          }
+        },
+        "AppLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "AppLambdaVersiongN2UhwQ0e2Jh3XdqVC2HsjC96dM5y6CTStuLPNUjjk"
+          },
+          "Export": {
+            "Name": "sls-coupon-backend-dev-AppLambdaFunctionQualifiedArn"
+          }
+        },
+        "ServiceEndpoint": {
+          "Description": "URL of the service endpoint",
+          "Value": {
+            "Fn::Join": [
+              "",
+              [
+                "https://",
+                {
+                  "Ref": "ApiGatewayRestApi"
+                },
+                ".execute-api.",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ".",
+                {
+                  "Ref": "AWS::URLSuffix"
+                },
+                "/dev"
+              ]
+            ]
+          },
+          "Export": {
+            "Name": "sls-coupon-backend-dev-ServiceEndpoint"
+          }
+        }
+      }
+    }
+  }
+}
