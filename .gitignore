@@ -25,3 +25,8 @@ Thumbs.db
 # --- General ---
 *.env
 *.local
+
+# --- Serverless Framework ---
+.serverless/ 
+node_modules/
+.serverless_plugins/
