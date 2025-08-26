@@ -1,6 +1,5 @@
 const RedemptionLog = require("../models/RedemptionLog");
 const Offer = require("../models/Offer");
-const User = require("../models/User");
 const Wallet = require("../models/Wallet");
 
 exports.redeemOffer = async (req, res) => {

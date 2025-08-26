@@ -37,3 +37,29 @@ exports.redeemCoupon = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getAliveCoupons = async (req, res) => {
+  try {
+    const aliveCoupons = await Coupon.find({ redeemed: false }).lean();
+    res.json(aliveCoupons);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+exports.checkCouponValidity = async (req, res) => {
+  try {
+    const { code } = req.body; // Kept as req.body for POST
+    if (!code) return res.status(400).json({ message: "code is required" });
+
+    const coupon = await Coupon.findOne({ code }).lean();
+    if (!coupon) return res.status(404).json({ message: "Coupon not found" });
+
+    if (coupon.redeemed) return res.json({ valid: false, message: "Coupon already redeemed" });
+
+    res.json({ valid: true, message: "Coupon is valid", coupon });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

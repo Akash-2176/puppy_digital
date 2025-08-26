@@ -13,7 +13,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.raw({ type: '*/*' })); // Capture all bodies as buffers
 app.use((req, res, next) => {
-  if (['POST', 'PUT', 'PATCH'].includes(req.method) && Buffer.isBuffer(req.body)) {
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method) && Buffer.isBuffer(req.body)) {
     try {
       req.body = JSON.parse(req.body.toString());
       console.log('✅ Manually parsed body:', req.body); // Log success

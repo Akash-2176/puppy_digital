@@ -48,3 +48,22 @@ exports.getAdForRedeem = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+exports.softDeleteAd = async (req, res) => {
+  try {
+
+    const { adId } = req.body;
+    if (!adId) return res.status(400).json({ message: "adId is required" });
+
+    const ad = await Ad.findById(adId);
+    if (!ad) return res.status(404).json({ message: "Ad not found" });
+
+    ad.isActive = false;
+    await ad.save();
+
+    res.json({ message: "Ad soft deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

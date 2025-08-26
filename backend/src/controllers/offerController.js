@@ -21,28 +21,20 @@ exports.getAllOffers = async (req, res) => {
   }
 };
 
-exports.redeemOffer = async (req, res) => {
+
+exports.softDeleteOffer = async (req, res) => {
   try {
+    console.log('Received body:', req.body); // Debug log
     const { offerId } = req.body;
+    if (!offerId) return res.status(400).json({ message: "offerId is required" });
 
     const offer = await Offer.findById(offerId);
     if (!offer) return res.status(404).json({ message: "Offer not found" });
 
-    const wallet = await Wallet.findOne({ userId: req.user.id });
-    if (!wallet || wallet.walletBalance < offer.cost) {
-      return res.status(400).json({ message: "Insufficient orbits" });
-    }
+    offer.isActive = false;
+    await offer.save();
 
-    wallet.walletBalance -= offer.cost;
-    await wallet.save();
-
-    const redemption = await Redemption.create({
-      userId: req.user.id,
-      offerId: offer._id,
-      status: "pending",
-    });
-
-    res.json({ message: "Offer redeemed, waiting for admin approval", redemption });
+    res.json({ message: "Offer soft deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
