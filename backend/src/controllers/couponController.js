@@ -40,7 +40,7 @@ exports.redeemCoupon = async (req, res) => {
 
 exports.getAliveCoupons = async (req, res) => {
   try {
-    const aliveCoupons = await Coupon.find({ redeemed: false }).lean();
+    const aliveCoupons = await Coupon.find().lean();
     res.json(aliveCoupons);
   } catch (err) {
     res.status(500).json({ error: err.message });

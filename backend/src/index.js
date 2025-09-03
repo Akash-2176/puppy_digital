@@ -35,6 +35,7 @@ app.use('/ad', require('./routes/ad'));
 app.use('/offers', require('./routes/offer'));
 app.use('/coupon', require('./routes/coupon'));
 app.use('/redemption', require('./routes/redemption'));
+app.use('/store', require('./routes/store'));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))

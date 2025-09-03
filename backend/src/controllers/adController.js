@@ -1,21 +1,55 @@
 const Ad = require('../models/Ad');
+const AWS = require('aws-sdk');
+const multer = require('multer');
+const dotenv = require('dotenv');
+dotenv.config();
 
-exports.createAd = async (req, res) => {
-  try {
-    const { mediaUrl, type, title, description } = req.body;
-    const ad = new Ad({ 
-      mediaUrl, 
-      type, 
-      title, 
-      description,
-      uploadedBy: req.user ? req.user.authId : null // Use authId if available
-    });
-    await ad.save();
-    res.status(201).json(ad);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION
+});
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
+
+exports.createAd = [
+  upload.single('mediaUrl'),
+  async (req, res) => {
+    try {
+      let mediaUrl = req.body.mediaUrl;
+      if (req.file) {
+        const params = {
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: `${Date.now()}-${req.file.originalname}`,
+          Body: req.file.buffer,
+          ContentType: req.file.mimetype,
+          // ACL: 'public-read'
+        };
+        const data = await s3.upload(params).promise();
+        mediaUrl = data.Location;
+      } else if (!mediaUrl) {
+        return res.status(400).json({ message: 'mediaUrl or file is required' });
+      }
+
+      const { type, title, description } = req.body;
+      if (!type || !title || !description) {
+        return res.status(400).json({ message: 'type, title, and description are required' });
+      }
+
+      const ad = new Ad({ 
+        mediaUrl, 
+        type, 
+        title, 
+        description,
+        uploadedBy: req.user ? req.user.authId : null
+      });
+      await ad.save();
+      res.status(201).json(ad);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
-};
+];
 
 exports.getAllAds = async (req, res) => {
   try {
