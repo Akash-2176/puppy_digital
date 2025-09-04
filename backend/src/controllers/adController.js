@@ -4,31 +4,33 @@ const multer = require('multer');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION
-});
+const s3 = new AWS.S3();
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 exports.createAd = [
   upload.single('mediaUrl'),
   async (req, res) => {
     try {
       let mediaUrl = req.body.mediaUrl;
+
+      // Check if mediaUrl is a file or a URL
       if (req.file) {
         const params = {
           Bucket: process.env.S3_BUCKET_NAME,
           Key: `${Date.now()}-${req.file.originalname}`,
           Body: req.file.buffer,
-          ContentType: req.file.mimetype,
-          // ACL: 'public-read'
+          ContentType: req.file.mimetype
         };
         const data = await s3.upload(params).promise();
         mediaUrl = data.Location;
+      } else if (typeof mediaUrl === 'string' && mediaUrl.startsWith('http')) {
+        // Validate it's a URL (basic check for http/https)
+        mediaUrl = mediaUrl.trim();
       } else if (!mediaUrl) {
         return res.status(400).json({ message: 'mediaUrl or file is required' });
+      } else {
+        return res.status(400).json({ message: 'mediaUrl must be a valid URL or file' });
       }
 
       const { type, title, description } = req.body;

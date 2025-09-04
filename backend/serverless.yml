@@ -7,6 +7,37 @@ provider:
   environment:
     MONGO_URI: ${env:MONGO_URI}
     JWT_SECRET: ${env:JWT_SECRET}
+    S3_BUCKET_NAME: ${env:S3_BUCKET_NAME}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:ListBucket
+          Resource:
+            - "arn:aws:s3:::ads-puppydigital/*"
+            - "arn:aws:s3:::ads-puppydigital"
+        - Effect: Allow
+          Action:
+            - logs:CreateLogStream
+            - logs:CreateLogGroup
+            - logs:TagResource
+          Resource:
+            - "arn:aws:logs:ap-south-1:603195189676:log-group:/aws/lambda/coupon-backend-dev*:*"
+        - Effect: Allow
+          Action:
+            - logs:PutLogEvents
+          Resource:
+            - "arn:aws:logs:ap-south-1:603195189676:log-group:/aws/lambda/coupon-backend-dev*:*:*"
+      assumeRolePolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
 
 plugins:
   - serverless-offline
