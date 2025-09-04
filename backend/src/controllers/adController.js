@@ -16,6 +16,10 @@ exports.createAd = [
 
       // Check if mediaUrl is a file or a URL
       if (req.file) {
+        console.log('File buffer length:', req.file.buffer.length);
+        console.log('File data sample (hex):', req.file.buffer.slice(0, 20).toString('hex'));
+        console.log('File mimetype:', req.file.mimetype);
+        console.log('File originalname:', req.file.originalname);
         const params = {
           Bucket: process.env.S3_BUCKET_NAME,
           Key: `${Date.now()}-${req.file.originalname}`,
@@ -23,6 +27,7 @@ exports.createAd = [
           ContentType: req.file.mimetype
         };
         const data = await s3.upload(params).promise();
+        console.log('S3 ETag:', data.ETag); // Checksum from S3
         mediaUrl = data.Location;
       } else if (typeof mediaUrl === 'string' && mediaUrl.startsWith('http')) {
         // Validate it's a URL (basic check for http/https)

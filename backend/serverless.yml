@@ -4,6 +4,9 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: ap-south-1
+  apiGateway:
+    binaryMediaTypes:
+      - '*/*'
   environment:
     MONGO_URI: ${env:MONGO_URI}
     JWT_SECRET: ${env:JWT_SECRET}

@@ -15,12 +15,14 @@ exports.createOffer = [
     try {
       let imageUrl = req.body.imageUrl;
       if (req.file) {
+        console.log('File buffer length:', req.file.buffer.length);
+        console.log('File mimetype:', req.file.mimetype);
+        console.log('File originalname:', req.file.originalname);
         const params = {
           Bucket: process.env.S3_BUCKET_NAME,
           Key: `${Date.now()}-${req.file.originalname}`,
           Body: req.file.buffer,
-          ContentType: req.file.mimetype,
-          // ACL: 'public-read'
+          ContentType: req.file.mimetype
         };
         const data = await s3.upload(params).promise();
         imageUrl = data.Location;
