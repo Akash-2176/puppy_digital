@@ -9,13 +9,28 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
-// ⛔️ REMOVE bodyParser.raw({ type: '*/*' })
-// ⛔️ REMOVE the manual Buffer → JSON.parse hack
-// ✅ Keep normal JSON + urlencoded for API payloads
+
+// ✅ Keep JSON + urlencoded for normal API routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// ✅ Add a "safety net" for when body comes as raw buffer but should be JSON
+app.use((req, res, next) => {
+  if (
+    req.is('application/json') &&          // only for JSON requests
+    Buffer.isBuffer(req.body)              // body is still a Buffer
+  ) {
+    try {
+      req.body = JSON.parse(req.body.toString());
+    } catch (err) {
+      console.error('❌ JSON parse failed:', err.message);
+      req.body = {};
+    }
+  }
+  next();
+});
+
+// 🔥 Routes
 app.use('/user', require('./routes/user'));
 app.use('/auth', require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
@@ -32,5 +47,5 @@ mongoose.connect(process.env.MONGO_URI)
 app.get("/", (req, res) => res.send("Coupon Backend is Live 🚀"));
 
 module.exports.handler = serverless(app, {
-  binary: ['*/*']   // tell serverless-http to handle binary
+  binary: ['*/*']
 });
